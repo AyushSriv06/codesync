@@ -38,4 +38,16 @@ export default defineSchema({
     .index("by_user_id", ["userId"])
     .index("by_snippet_id", ["snippetId"])
     .index("by_user_id_and_snippet_id", ["userId", "snippetId"]),
+
+  collabDocuments: defineTable({
+    roomId: v.string(),
+    content: v.string(),
+    language: v.string(),
+    title: v.string(),
+    createdBy: v.string(),
+    lastModified: v.number(),
+    lastModifiedBy: v.string(),
+  })
+    .index("by_room_id", ["roomId"])
+    .index("by_created_by", ["createdBy"]),
 });

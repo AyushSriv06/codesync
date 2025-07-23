@@ -3,12 +3,13 @@ import { ConvexHttpClient } from "convex/browser";
 import React from "react";
 import { api } from "../../../../convex/_generated/api";
 import Link from "next/link";
-import { Blocks, Code2, UserCircle2 } from "lucide-react";
+import { Blocks, Code2, UserCircle2, Users } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import ThemeSelector from "./ThemeSelector";
 import LanguageSelector from "./LanguageSelector";
 import RunButton from "./RunButton";
 import HeaderProfileBtn from "./HeaderProfileBtn";
+import CollabButton from "./CollabButton";
 
 async function Header() {
   const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
@@ -75,6 +76,8 @@ async function Header() {
                 Profile
               </span>
             </Link>
+
+            <CollabButton />
           </nav>
         </div>
 

@@ -64,3 +64,15 @@ export interface Snippet {
   title: string;
   userName: string;
 }
+
+export interface CollabDocument {
+  _id: string;
+  _creationTime: number;
+  roomId: string;
+  content: string;
+  language: string;
+  title: string;
+  createdBy: string;
+  lastModified: number;
+  lastModifiedBy: string;
+}
