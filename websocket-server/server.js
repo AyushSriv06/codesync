@@ -1,13 +1,8 @@
 const WebSocket = require('ws');
 const Y = require('yjs');
 const { setupWSConnection } = require('y-websocket/bin/utils');
-const { v4: uuidv4 } = require('uuid');
 
 const PORT = process.env.PORT || 1234;
-
-// Store for active rooms and their documents
-const rooms = new Map();
-const roomConnections = new Map();
 
 // Create WebSocket server
 const wss = new WebSocket.Server({
@@ -39,42 +34,17 @@ wss.on('connection', (ws, req) => {
 
   console.log(`Client joining room: ${roomId}`);
 
-  // Initialize room if it doesn't exist
-  if (!rooms.has(roomId)) {
-    const doc = new Y.Doc();
-    rooms.set(roomId, doc);
-    roomConnections.set(roomId, new Set());
-    
-    // Initialize with default content
-    const yText = doc.getText('monaco');
-    yText.insert(0, '// Welcome to collaborative coding!\n// Start typing to see real-time collaboration in action.\n\nconsole.log("Hello, collaborative world!");');
-    
-    console.log(`Created new room: ${roomId}`);
-  }
-
-  // Add connection to room
-  const connections = roomConnections.get(roomId);
-  connections.add(ws);
-
   // Set up Yjs WebSocket connection
+  // setupWSConnection handles Y.Doc creation/retrieval and connection management
+  // It also handles garbage collection when gc: true is set
   setupWSConnection(ws, req, {
     docName: roomId,
-    gc: true
+    gc: true // Ensures Y.Doc is garbage collected when no clients are connected
   });
 
   // Handle connection close
   ws.on('close', () => {
     console.log(`Client disconnected from room: ${roomId}`);
-    connections.delete(ws);
-    
-    // Clean up empty rooms after a delay
-    setTimeout(() => {
-      if (connections.size === 0) {
-        console.log(`Cleaning up empty room: ${roomId}`);
-        rooms.delete(roomId);
-        roomConnections.delete(roomId);
-      }
-    }, 30000); // 30 seconds delay
   });
 
   // Handle errors
@@ -103,9 +73,7 @@ const server = http.createServer((req, res) => {
   if (req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ 
-      status: 'healthy', 
-      rooms: rooms.size,
-      connections: Array.from(roomConnections.values()).reduce((total, set) => total + set.size, 0)
+      status: 'healthy'
     }));
   } else {
     res.writeHead(404);
